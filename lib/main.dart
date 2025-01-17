@@ -14,15 +14,14 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  bool _showList = false;
   double _balance = 0;
   final formatCurrency = NumberFormat.currency(locale: 'vi_VN', symbol: '');
-  List<String> fullName = ["Duong", "Hieu", "Dung", "Hoang", "Kien"];
+  String name = "";
+  final TextEditingController _controller = TextEditingController();
 
   void AddMoney() async {
     setState(() {
       _balance += 500000;
-      _showList = true;
     });
 
     final SharedPreferences dataLocal = await SharedPreferences.getInstance();
@@ -33,13 +32,13 @@ class _MyAppState extends State<MyApp> {
     final SharedPreferences dataLocal = await SharedPreferences.getInstance();
     setState(() {
       _balance = dataLocal.getDouble('Money') ?? 0;
-      print('$_balance');
-      print('ádfasdf');
     });
   }
 
-  void Stringdf(){
-    print('sdfsdfsdf');
+  void InsertName() async {
+    setState(() {
+      name = _controller.text;
+    });
   }
 
   @override
@@ -69,6 +68,57 @@ class _MyAppState extends State<MyApp> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Expanded(
+                          flex: 0,
+                          child: TextField(
+                              style: TextStyle(fontSize: 22),
+                              decoration: InputDecoration(
+                                  hintText: "Nhap vao ten cua ban"),
+                              controller: _controller,
+                              onEditingComplete: () async {
+                                setState(() {
+                                  name = _controller.text;
+                                });
+                                final SharedPreferences dataLocal =
+                                    await SharedPreferences.getInstance();
+                                await dataLocal.setString('Name', name);
+                              })),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Expanded(
+                          flex: 0,
+                          child: Row(
+                            children: [
+                              Text(
+                                'Ten cua ban la : $name',
+                                style: TextStyle(fontSize: 18),
+                              ),
+                              SizedBox(
+                                width: 90,
+                              ),
+                            ],
+                          )),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Expanded(
+                          flex: 0,
+                          child: Row(
+                            children: [
+                              OutlinedButton(
+                                  onPressed: () async {
+                                    final SharedPreferences dataName = await SharedPreferences.getInstance();
+                                    setState(() {
+                                      name = dataName.getString('Name') ?? 'Name trong' ;
+                                    });
+                                  },
+                                  child: Text('Load name'))
+                            ],
+                          )),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Expanded(
                         flex: 0,
                         child: Container(
                           color: Colors.blue,
@@ -91,19 +141,7 @@ class _MyAppState extends State<MyApp> {
                       Expanded(
                           flex: 0,
                           child: OutlinedButton(
-                              onPressed: LoadData, child: Text("data"))),
-                      if (_showList)
-                        Expanded(
-                            flex: 0,
-                            child: Container(
-                              color: Colors.grey,
-                              child: Text("Ho va ten : $fullName",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 19)),
-                            ))
-                      else
-                        Expanded(flex: 0, child: Text("Chua co ten")),
+                              onPressed: LoadData, child: Text("Load money"))),
                     ]),
               ),
               Expanded(
@@ -116,7 +154,7 @@ class _MyAppState extends State<MyApp> {
                     child: Text(
                       "Chuyen khoan",
                       style:
-                      TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
                     )),
               ),
             ],
